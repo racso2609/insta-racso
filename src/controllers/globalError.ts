@@ -1,5 +1,5 @@
-
 import type { NextFunction, Request, Response } from "express";
+
 const sendErrorDevelopment = (error,res:Response)=>{
   res.status(error.statusCode || 500).json({
     status: error.status || 'error',

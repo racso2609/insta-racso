@@ -21,23 +21,27 @@ const limit = ratelimit({
 
 app.use(express.urlencoded({ extended: false, limit: "10mb" }));
 app.use(express.json({ limit: "10mb" }));
-app.use(express.json());
 app.use("*", limit);
 
 app.use(helmet());
 //app.use(xss());
 
 app.use(cors());
+app.options("*", cors());
 app.use(passport.initialize());
 app.use(morgan(process.env.LOGGER));
-app.use(globalErrorController);
 
 //Routes
-import userRouter from './routes/user'
-app.use(userRouter)
+import userRouter from "./routes/user";
+import followerRouter from "./routes/follower";
+
+app.use("/api/users", userRouter);
+app.use("/api/followers", followerRouter);
+
 app.all("*", (_req: Request, _res: Response, next: NextFunction) => {
   return next(new AppError("This route is not yet defined!", 404));
 });
+app.use(globalErrorController);
 
 (async () => {
   try {
@@ -58,4 +62,4 @@ app.all("*", (_req: Request, _res: Response, next: NextFunction) => {
   });
 });
 
-module.exports = app;
+export default app;

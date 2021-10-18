@@ -3,18 +3,7 @@ import bcrypt = require("bcrypt");
 import crypto = require("crypto");
 
 const Schema = mongoose.Schema;
-interface userInterface {
-  email: string;
-  password: string;
-  role: string;
-  emailVerified: Boolean;
-  emailVerificationCode?: string;
-  passwordResetToken?: string ;
-  passwordResetExpires?: string;
-  phone?: string;
-  firstName: string;
-  lastName: string;
-}
+
 const UserModel = new Schema({
   email: {
     type: String,
@@ -74,4 +63,4 @@ UserModel.methods.createPasswordResetToken = function () {
 };
 
 const User = mongoose.model("User", UserModel);
-export { User, userInterface };
+export  default User;
