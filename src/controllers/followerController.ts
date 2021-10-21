@@ -165,3 +165,16 @@ export const getMyFollowRequest = asyncHandler(
     });
   }
 );
+
+export const removeFollower = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { requestId } = req.params;
+
+    const deleteInfo = await Follower.findByIdAndRemove(requestId);
+    res.status(200).json({
+      success: true,
+      status: "success",
+      deleteInfo,
+    });
+  }
+);

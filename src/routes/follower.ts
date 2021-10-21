@@ -8,7 +8,9 @@ import {
   denyRequest,
   getMyFollowingRequest,
   getMyFollowRequest,
+  removeFollower,
 } from "../controllers/followerController";
+
 const router = express.Router();
 
 router.get("/myFollowers", protect, getMyFollowers);
@@ -19,9 +21,7 @@ router.get("/request-follow/:following", protect, requestFollow);
 router.get("/approve-request/:requestId", protect, approveRequest);
 router.get("/deny-request/:requestId", protect, denyRequest);
 
-//TODO make unfollow and remove follower function 
-router.get("/remove-follower/:userId", protect, denyRequest);
-router.get("/unfollow/:userId", protect, denyRequest);
+router.get("/remove-follow/:requestId", protect, removeFollower);
 
 router.get("/following-request", protect, getMyFollowingRequest);
 router.get("/follow-request", protect, getMyFollowRequest);
