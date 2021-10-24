@@ -8,7 +8,6 @@ interface EmailMessage {
   html?: string;
 }
 export class Email {
-  to: string;
   message: EmailMessage;
   constructor(to: string, subject: string, text: string, html?: string) {
     this.message = {

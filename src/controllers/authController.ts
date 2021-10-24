@@ -93,6 +93,7 @@ export const signup = asyncHandler(
         success: true,
         //user,
       });
+      console.log('res')
     }
   }
 );

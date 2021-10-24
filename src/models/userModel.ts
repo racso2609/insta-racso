@@ -1,7 +1,7 @@
 import mongoose = require("mongoose");
 import bcrypt = require("bcrypt");
 import crypto = require("crypto");
-
+import { userTypes } from "../interfaces/interfaces";
 const Schema = mongoose.Schema;
 
 const UserModel = new Schema({
@@ -27,8 +27,10 @@ const UserModel = new Schema({
     type: String,
   },
   role: {
-    type: "String",
-    default: "user",
+    type: String,
+    enum: Object.keys(userTypes),
+    default: userTypes.USER,
+    require: true,
   },
   emailVerified: {
     type: Boolean,
@@ -63,4 +65,4 @@ UserModel.methods.createPasswordResetToken = function () {
 };
 
 const User = mongoose.model("User", UserModel);
-export  default User;
+export default User;
