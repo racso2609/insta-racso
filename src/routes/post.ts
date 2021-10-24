@@ -4,14 +4,17 @@ import {
   getMyPost,
   createPost,
   deleteAllMyPosts,
+  getPost
 } from "../controllers/postController";
 import multer = require("multer");
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../utils/Cloudinary";
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary.v2,
-  params: {
-    folder: "Posts",
+  params: async (req) => {
+    return {
+      folder: "Post/"+req.user._id,
+    };
   },
 });
 
@@ -24,6 +27,9 @@ router
   .get(protect, getMyPost)
   .post(protect, upload.single("publication"), createPost)
   .delete(protect, deleteAllMyPosts);
+
+router.route('/:postId')
+.delete(protect,getPost)
 
 const postRouter = router;
 export default postRouter;

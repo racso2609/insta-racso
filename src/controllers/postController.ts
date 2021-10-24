@@ -2,8 +2,20 @@ import { Request, Response, NextFunction, Express } from "express";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import Post from "../models/postsModels";
-import { postType } from "../interfaces/interfaces";
+import { postType, postInterface } from "../interfaces/interfaces";
+import cloudy from "../utils/Cloudinary";
 require("dotenv").config();
+
+const deleteImageFromCloudinary = (error: Error, doc: postInterface) => {
+  if (error) throw error;
+  console.log(doc);
+  const url = doc.file.split("/");
+
+  let imageId = url[url.length - 1].split(".")[0];
+  cloudy.v2.uploader.destroy(imageId, (errorCloud: Error) => {
+    if (errorCloud) throw errorCloud;
+  });
+};
 
 const uploadFile = (file: Express.Multer.File, next: NextFunction) => {
   const fileType = file.mimetype.split("/")[0];
@@ -60,6 +72,19 @@ export const createPost = asyncHandler(
 export const deleteAllMyPosts = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
     const deletedPost = await Post.deleteMany({ user: req.user._id });
+
+    res.status(200).json({
+      success: true,
+      status: "success",
+      deletedPost,
+    });
+  }
+);
+
+export const getPost = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { postId } = req.params;
+    const deletedPost = await Post.deleteOne({ _id: postId });
 
     res.status(200).json({
       success: true,
