@@ -4,7 +4,9 @@ import {
   getMyPost,
   createPost,
   deleteAllMyPosts,
-  getPost
+  getPost,
+  deletePostById,
+  getPaginatedPost
 } from "../controllers/postController";
 import multer = require("multer");
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -22,14 +24,18 @@ const upload = multer({ storage: storage });
 
 const router = Router();
 
+router.route('/:page/:limit')
+  .get(protect,getPaginatedPost);
+
 router
-  .route("/")
+  .route("/me")
   .get(protect, getMyPost)
   .post(protect, upload.single("publication"), createPost)
   .delete(protect, deleteAllMyPosts);
 
 router.route('/:postId')
-.delete(protect,getPost)
+.get(protect,getPost)
+.delete(protect,deletePostById)
 
 const postRouter = router;
 export default postRouter;

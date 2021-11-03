@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, Express } from "express";
+import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import Post from "../models/postsModels";
@@ -48,7 +48,7 @@ export const createPost = asyncHandler(
     const { description } = req.body;
     const file = req.file;
 
-    let fileInfo: { type: string; url: string };
+    let fileInfo: { type: string; url?: string } = { type: postType.TEXT };
 
     if (!description && !file)
       return next(new AppError("Blank post are not allowed!", 400));
@@ -90,6 +90,47 @@ export const getPost = asyncHandler(
       success: true,
       status: "success",
       deletedPost,
+    });
+  }
+);
+
+export const deletePostById = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { postId } = req.params;
+    const post = await Post.findById(postId).select("user");
+
+    if (!post) return next(new AppError("Post do not exist!", 404));
+    if (post.user !== req.user._id)
+      return next(new AppError("It is not your post!", 401));
+    const result = await Post.findByIdAndDelete(postId);
+
+    res.status(200).json({
+      status: "success",
+      success: true,
+      result,
+    });
+  }
+);
+
+export const getPaginatedPost = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const { limit, page } = req.params;
+    const intLimit = parseInt(limit);
+    const intSkip = (parseInt(page) - 1) * intLimit;
+
+    const posts = await Post.find({})
+      .sort("createdAt")
+      .skip(intSkip)
+      .limit(intLimit)
+      .populate({
+        path: "user",
+        select: "firstName lastName email",
+      });
+
+    res.status(200).json({
+      status: "success",
+      success: true,
+      posts,
     });
   }
 );

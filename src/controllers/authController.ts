@@ -257,17 +257,17 @@ export const updateProfile = asyncHandler(
 );
 
 export const getLoggedInUser = asyncHandler(
-  async (req: Request, res: Response, _next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const { _id } = req.user;
     const user = await User.findById(_id);
+    if(!user) return next(new AppError("User do not exist!",404));
 
     res.status(200).json({
-      data: {
+      user: {
         role: user.role,
-        Email: user.email,
-        Phone: user.phone,
-        Firstname: user.firstName,
-        Lastname: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        name: user.firstName + " "+ user.lastName,
       },
       success: true,
       status: "success",

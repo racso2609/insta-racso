@@ -4,25 +4,34 @@ import { NextFunction } from "express";
 import cloudy from "../utils/Cloudinary";
 const Schema = mongoose.Schema;
 
-const PostModel = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    require: true,
+const PostModel = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      require: true,
+    },
+    file: {
+      type: String,
+      default: null,
+    },
+    description: {
+      type: String,
+      default: null,
+    },
+    postType: {
+      type: String,
+      enum: Object.keys(postType),
+      default: postType.TEXT,
+    },
   },
-  file: {
-    type: String,
-    default: null,
-  },
-  description: {
-    type: String,
-    default: null,
-  },
-  postType: {
-    type: String,
-    enum: Object.keys(postType),
-    default: postType.TEXT,
-  },
-});
+  {
+    timestamps: {
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
+    },
+  }
+);
 PostModel.pre(
   "deleteMany",
   { query: true, document: false },
