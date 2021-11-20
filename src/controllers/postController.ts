@@ -6,18 +6,18 @@ import { postType, postInterface } from "../interfaces/interfaces";
 import cloudy from "../utils/Cloudinary";
 require("dotenv").config();
 
-const deleteImageFromCloudinary = (error: Error, doc: postInterface) => {
-  if (error) throw error;
-  console.log(doc);
-  const url = doc.file.split("/");
+//const deleteImageFromCloudinary = (error: Error, doc: postInterface) => {
+//if (error) throw error;
+//console.log(doc);
+//const url = doc.file.split("/");
 
-  let imageId = url[url.length - 1].split(".")[0];
-  cloudy.v2.uploader.destroy(imageId, (errorCloud: Error) => {
-    if (errorCloud) throw errorCloud;
-  });
-};
+//let imageId = url[url.length - 1].split(".")[0];
+//cloudy.v2.uploader.destroy(imageId, (errorCloud: Error) => {
+//if (errorCloud) throw errorCloud;
+//});
+//};
 
-const uploadFile = (file: Express.Multer.File, next: NextFunction) => {
+const uploadFile = (file: Express.Multer.File, _next: NextFunction) => {
   const fileType = file.mimetype.split("/")[0];
   const url = file.path;
 
@@ -95,14 +95,14 @@ export const getPost = asyncHandler(
 );
 
 export const deletePostById = asyncHandler(
-  async (req: Request, res: Response, _next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const { postId } = req.params;
     const post = await Post.findById(postId).select("user");
 
     if (!post) return next(new AppError("Post do not exist!", 404));
     if (post.user !== req.user._id)
       return next(new AppError("It is not your post!", 401));
-    const result = await Post.findByIdAndDelete(postId);
+    const result = await Post.deleteOne({ _id: postId });
 
     res.status(200).json({
       status: "success",

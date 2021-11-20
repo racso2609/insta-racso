@@ -37,7 +37,6 @@ PostModel.pre(
   { query: true, document: false },
   async function (next: NextFunction) {
     const docs = await this.model.find(this.getFilter());
-    console.log(docs);
     for (const post of docs) {
       const file = post.file;
       const resource_type = post.postType.toLowerCase();
@@ -64,10 +63,7 @@ PostModel.pre(
     console.log(this.getFilter());
     const post = await this.model.findOne(this.getFilter());
     if (!post) {
-      const newError = new Error();
-      newError.statusCode = 404;
-      newError.message = "Object not found";
-      return next(newError);
+      return next();
     }
     const file = post.file;
     const resource_type = post.postType.toLowerCase();

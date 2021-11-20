@@ -13,22 +13,28 @@ const initialUsers = [
   },
 ];
 
+jest.useFakeTimers();
+
 //beforeEach(async () => {
-  //await User.deleteMany({});
-  //await User.create(initialUsers[0]);
+//await User.deleteMany({});
+//await User.create(initialUsers[0]);
 //});
-describe("POST/ - signup", () => {
-  it("signup api", async () => {
-    const newUser = initialUsers[0];
-    const res = await request(app)
-      .post("/api/users/signup")
-      .send({ ...newUser })
-      .expect(201);
-    //expect(1).toBe(1);
-    console.log(res);
-    //expect("Content-Type", /json/);
-  });
+//describe("POST/ - signup", () => {
+it("signup api", () => {
+  const newUser = initialUsers[0];
+  request(app)
+    .post("/api/users/signup")
+    .send({ ...newUser })
+    .expect(201)
+    .end(function (err, res) {
+      if (err) throw err;
+      console.log(res);
+    });
+  //expect(1).toBe(1);
+  //console.log(res);
+  //expect("Content-Type", /json/);
 });
+//});
 
 afterAll(() => {
   mongoose.connection.close();

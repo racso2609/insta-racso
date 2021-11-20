@@ -48,6 +48,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.2.0",
     "typescript": "^4.4.4"
   }
 }
