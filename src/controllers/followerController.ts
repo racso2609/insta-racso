@@ -7,7 +7,7 @@ import { AppError } from '../utils/AppError';
 
 export const getMyFollowers = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-        let followers = await Follower.find({
+        const followers = await Follower.find({
             status: followerStatus.APPROVE,
             user: req.user._id,
         })

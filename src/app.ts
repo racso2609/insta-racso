@@ -1,6 +1,7 @@
 import express = require('express');
 import { Request, Response, NextFunction } from 'express';
 import cors = require('cors');
+import http = require('http');
 import passport = require('passport');
 import morgan = require('morgan');
 import helmet = require('helmet');
@@ -10,6 +11,12 @@ import ratelimit = require('express-rate-limit');
 import mongoose = require('mongoose');
 import { globalErrorController } from './controllers/globalError';
 import { AppError } from './utils/AppError';
+import {
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData,
+} from './interfaces/interfaces.ts';
 import path = require('path');
 dotenv.config();
 const app = express();
@@ -30,16 +37,17 @@ app.use(cors());
 app.options('*', cors());
 app.use(passport.initialize());
 app.use(morgan(process.env.LOGGER));
-console.log(__dirname);
 app.use(express.static(path.join(__dirname, '..', 'uploads')));
 //Routes
 import userRouter from './routes/user';
 import followerRouter from './routes/follower';
 import postRouter from './routes/post';
+import likeRouter from './routes/likes';
 
 app.use('/api/users', userRouter);
 app.use('/api/followers', followerRouter);
 app.use('/api/posts', postRouter);
+app.use('/api/likes', likeRouter);
 
 app.all('*', (_req: Request, _res: Response, next: NextFunction) => {
     return next(new AppError('This route is not yet defined!', 404));
@@ -57,11 +65,11 @@ mongoose
         process.exit(1);
     });
 const PORT = process.env.PORT || 3001;
-let server = app.listen(PORT, () =>
-    console.log(`Server is listening on ${PORT}`)
-);
+const server = http.createServer(app);
+server.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
+require('./sockets');
 
-['unhandledRejection', 'uncaughtException'].forEach((processEvent) => {
+[('unhandledRejection', 'uncaughtException')].forEach((processEvent) => {
     process.on(processEvent, (error) => {
         console.log(error);
         process.exit(1);
