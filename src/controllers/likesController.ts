@@ -3,6 +3,10 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { AppError } from '../utils/AppError';
 import Like from '../models/likes';
 import Post from '../models/postsModels';
+import { LIKE_MESSAGE } from '../helper/notificationTemplates';
+import Notification from '../models/notifications';
+import socketWrapper from '../app';
+import User from '../models/userModel';
 
 export const getLikes = asyncHandler(async (req: Request, res: Response) => {
     const { _id } = req.user;
@@ -16,10 +20,10 @@ export const getLikes = asyncHandler(async (req: Request, res: Response) => {
 });
 export const getLikePost = asyncHandler(async (req: Request, res: Response) => {
     const { postId } = req.params;
-    const likes = await Like.find({ post: postId });
+    const likes = await Like.find({ post: postId }).populate("user").select('-password');
     const liked =
-        likes.filter((like) => like.user._id === req.user._id).length > 0;
-
+        likes.filter((like) => like.user._id.toString() === req.user._id.toString())
+            .length > 0;
     res.status(200).json({
         success: true,
         status: 'success',
@@ -40,6 +44,22 @@ export const likePost = asyncHandler(
             return next(new AppError('You already like this post', 400));
 
         const newLike = await Like.create({ user: _id, post: postId });
+        const user = await User.findById(_id);
+        Notification.push({
+            from: user._id,
+            to: existPost.user,
+            type: 'like-post',
+            entity: {
+                name: 'post',
+                id: existPost._id,
+            },
+        });
+        socketWrapper.pushNotification({
+            userId: user._id.toString(),
+            type: 'like-post',
+            message: LIKE_MESSAGE(user),
+            entityId: postId,
+        });
 
         res.status(200).json({
             success: true,

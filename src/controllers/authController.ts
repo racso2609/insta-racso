@@ -153,6 +153,7 @@ export const login = asyncHandler(
                 Phone: user.phone,
                 Firstname: user.firstName,
                 Lastname: user.lastName,
+                id: payload._id
             });
         }
     }
@@ -295,6 +296,7 @@ export const getLoggedInUser = asyncHandler(
                 email: user.email,
                 phone: user.phone,
                 name: user.firstName + ' ' + user.lastName,
+                id: user._id
             },
             success: true,
             status: 'success',

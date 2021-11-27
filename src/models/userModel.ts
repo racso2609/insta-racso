@@ -2,7 +2,10 @@ import mongoose = require("mongoose");
 import bcrypt = require("bcrypt");
 import crypto = require("crypto");
 import { userTypes } from "../interfaces/interfaces";
+import dotenv from 'dotenv';
+dotenv.config();
 const Schema = mongoose.Schema;
+
 
 const UserModel = new Schema({
   email: {
@@ -36,6 +39,11 @@ const UserModel = new Schema({
     type: Boolean,
     default: false,
   },
+  profileImage:{
+    type: String,
+    default: process.env.DEFAULT_USER_PHOTO
+  },
+  userName: String,
   emailVerificationCode: String,
   passwordResetToken: String,
   passwordResetExpires: Date,

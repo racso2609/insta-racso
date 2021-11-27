@@ -1,7 +1,6 @@
 import express = require('express');
 import { Request, Response, NextFunction } from 'express';
 import cors = require('cors');
-import http = require('http');
 import passport = require('passport');
 import morgan = require('morgan');
 import helmet = require('helmet');
@@ -11,12 +10,17 @@ import ratelimit = require('express-rate-limit');
 import mongoose = require('mongoose');
 import { globalErrorController } from './controllers/globalError';
 import { AppError } from './utils/AppError';
-import {
-    ClientToServerEvents,
-    ServerToClientEvents,
-    InterServerEvents,
-    SocketData,
-} from './interfaces/interfaces.ts';
+
+//socket
+import { Server } from 'socket.io';
+import { NOTIFICATION, JOIN_USER_ID } from './constants/SOCKETS';
+
+// import {
+// ClientToServerEvents,
+// ServerToClientEvents,
+// InterServerEvents,
+// SocketData,
+// } from './interfaces/interfaces.ts';
 import path = require('path');
 dotenv.config();
 const app = express();
@@ -64,10 +68,11 @@ mongoose
         console.log('Error', err);
         process.exit(1);
     });
+
 const PORT = process.env.PORT || 3001;
-const server = http.createServer(app);
-server.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
-require('./sockets');
+const server = app.listen(PORT, () =>
+    console.log(`Server is listening on ${PORT}`)
+);
 
 [('unhandledRejection', 'uncaughtException')].forEach((processEvent) => {
     process.on(processEvent, (error) => {
@@ -76,4 +81,30 @@ require('./sockets');
     });
 });
 
-export { app, server };
+class SocketWrapper {
+    io = null;
+    // connectedSockets = {};
+    constructor(server) {
+        const io = new Server(server, {});
+        io.on('connect', (socket) => {
+            console.log('User connected');
+
+            socket.on(JOIN_USER_ID, (userId) => {
+                // this.connectedSockets[userId] = socket;
+                socket.join(userId);
+                // console.log('connected', userId);
+            });
+
+            socket.on('disconnect', () => {
+                console.log(`socket ${socket.id} disconnected`);
+            });
+        });
+        this.io = io;
+    }
+    pushNotification = ({ userId, type, message, entityId }) => {
+        this.io.in(userId).emit(NOTIFICATION, { message, type, entityId });
+    };
+}
+
+const socketWrapper = new SocketWrapper(server);
+export default socketWrapper;
