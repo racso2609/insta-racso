@@ -53,6 +53,7 @@ app.use('/api/followers', followerRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/likes', likeRouter);
 
+
 app.all('*', (_req: Request, _res: Response, next: NextFunction) => {
     return next(new AppError('This route is not yet defined!', 404));
 });

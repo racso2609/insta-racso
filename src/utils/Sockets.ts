@@ -14,7 +14,6 @@ class SocketWrapper {
             console.log('User connected');
 
             socket.on(JOIN_USER_ID, (userId) => {
-                console.log('register', userId);
                 this.connectedSockets[userId] = socket;
                 socket.join(userId);
             });
@@ -32,5 +31,5 @@ class SocketWrapper {
     };
 }
 
-let socketWrapper = new SocketWrapper(server);
+const socketWrapper = new SocketWrapper(server);
 export default socketWrapper;
